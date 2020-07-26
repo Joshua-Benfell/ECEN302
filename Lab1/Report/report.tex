@@ -81,12 +81,12 @@
 		\subsection{Q2}
 			This chip operates above 450MHz internally.
 		\subsection{Q3}
-			If we assume that the our clock is running at 450MHz, as stated by the data sheet on the wiki, we know that the bit only flips on the rising edge, making the 24th bit, the equivalent of a 25th bit if the clock is considered the first bit as bit 0 is triggering at half the clock frequency. Therefore, the frequency of bit 24 can be found using \cref{eq:freq}.
+			If we assume that the our clock is running at 450MHz, as stated by the data sheet on the wiki, the frequency of bit 24 can be found using \cref{eq:freq}.
 			\begin{equation}
 				\label{eq:freq}
 				\begin{split}
-					F & = \frac{450\times 10^6}{2^{25}}\\
-					  & = 1.49 \text{Hz}
+					F & = \frac{450\times 10^6}{2^{24}}\\
+					  & = 26.8 \text{Hz}
 				\end{split}
 			\end{equation}
 		\subsection{Q4}
