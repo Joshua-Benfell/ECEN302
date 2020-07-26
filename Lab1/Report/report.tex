@@ -1,0 +1,119 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[section]{placeins}
+\usepackage{fixltx2e}
+\usepackage[page]{appendix}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath}
+\usepackage{cleveref}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+\lstset{
+	language=VHDL,                % choose the language of the code
+	numbers=left,                   % where to put the line-numbers
+	stepnumber=1,                   % the step between two line-numbers.        
+	numbersep=5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{backgroundColour},
+	commentstyle=\color{mGreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{mGray},
+	stringstyle=\color{mPurple},
+	basicstyle=\footnotesize,
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	tabsize=4,                      % sets default tabsize to 2 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+	title=\lstname,                 % show the filename of files included with \lstinputlisting;
+	inputpath=code,
+}
+
+\graphicspath{{./pictures/}}
+
+\title{ECEN30 Lab 1 - Introduction to VHDL and FPGAs}
+\author{Joshua Benfell - 300433229}
+
+\begin{document}
+	\maketitle
+	
+	\section{Objectives}
+		The primary objective of this lab is to learn the basics of VHDL and the process taken to put this code onto an FPGA. For this, the Vivado development environment will be used to develop the circuit descriptions and simulate them before uploading them to the chip. In addition to this, the location and use of example code is covered to make the overall process faster for future tasks. It is important that we meet the objective and become familiar with VHDL and the tool chain as it will be used in future lab experiments.  
+	\section{Methodology}
+		To start off this lab, a counter project was created in Vivado and the ports were defined as a clock input, a direction input, and a count output which was a bus. It as set as a bus as this meant it would take up multiple bits and allow counting to numbers larger than 1. 
+		\par
+		This project was initially filled with template code for a counter, which Vivado has a wide selection, so it will be useful to refer back to this for other projects as a starting point. There was no copy to clipboard button anywhere and it didn't offer the option to add this file to your project, so the way to use this code was to highlight it all, copy and paste. From here, the \lstinline{IEEE.NUMERIC_STD.ALL} library was included which allowed us to use the \lstinline{unsigned} data type for keeping track of the count as a variable. For outputting this variable to the LEDs that are meant to be turned on, it needs to be typecast as a \lstinline{std_logic_vector} as this is what the bus is wanting as it's type.
+		\par
+		\begin{figure}[!ht]
+			\centering
+			\includegraphics[width=0.9\columnwidth]{lab1Counter.PNG}
+			\caption{Timing graph from the counter simulation}
+			\label{fig:graph}
+		\end{figure}
+		Before this code can be put onto some hardware it should be tested to ensure it functions as intended. For this a test bench was written that implement the counter entity, maps the signals in that entity to the signals in the test bench and then runs the counters methods by toggling the clock every predefined period and after 200ns, it switches the direction bit to allow testing of both directions. \Cref{fig:graph} shows the results of this testing and it can be seen on the line with hexadecimal, that the counter is counting in the desired order. 
+		\par
+		Now that it's been tested, it had to be implemented in software. This involved selecting which pins were to be used. While this information was provided in the lab script. It won't always be, so how this selection would be done in future projects is by looking at the silk screen on the circuit board to determine which pins we want to use. In the Vivado software package, it is possible to select the IO standard used on the pins. This initially displays ``default (LVCMOS18)'', which could be taken as default is selected and this is what it is. However, this is not the case and it is actually, this is the default you should select, which is very confusing for this package and something to remember for the future.
+		\par
+		The code could finally be uploaded to the FPGA. As this was running at the base clock speed of the chip, it as counting too fast for it to be perceived. All that was visible was 4 always on LEDs at varying brightnesses as the on off time acted as a PWM signal. To fix this, the number of bits that had to be counted was increased to 28 and the 4 MSBs were selected as the output. This was more visible. This didn't get simulated as the time it would have to simulate over would've taken far too long. 
+		\par
+		The circuit boards have more display options on them than just the LEDs. One of the options is seven segment displays. To use this, a decoder entity for the displays was made. This took all the expected inputs and mapped them to an output combination this is done through a lookup table instead of traditional electronics which will speed up the conversion. The entity is them registered in the counter so that it can be used, and the outputs mapped to the required ports in this component. Once mapping the pins was done, the code could be uploaded, which turned all the displays on. Something to investigate next time is how to do a single display. 
+		\par
+		Up until this point, the program has been uploaded to volatile memory, which means that when the board was reset, the counter program didn't load in. To store the program on the board so that it can be reused after a power loss, it was uploaded to the non-volatile flash memory. 
+
+	\section{Code}
+		\subsection{Counter}
+			\lstinputlisting{counter.vhd}
+		\subsection{Counter Test Bench}
+			\lstinputlisting{counter_tb.vhd}
+		\subsection{Seven Segment Display Decoder} 
+			\lstinputlisting{ssd_decoder.vhd}
+	\section{Questions}
+		\subsection{Q1}
+			The name of the Xilinx chip we are using is the Artix 7 (Xilinx Part Number XC7A100T\-1CSG324C) on the Nexys4DDR board by Digilent. This chip has 324 pins.
+		\subsection{Q2}
+			This chip operates above 450MHz internally.
+		\subsection{Q3}
+			If we assume that the our clock is running at 450MHz, as stated by the data sheet on the wiki, we know that the bit only flips on the rising edge, making the 24th bit, the equivalent of a 25th bit if the clock is considered the first bit as bit 0 is triggering at half the clock frequency. Therefore, the frequency of bit 24 can be found using \cref{eq:freq}.
+			\begin{equation}
+				\label{eq:freq}
+				\begin{split}
+					F & = \frac{450\times 10^6}{2^{25}}\\
+					  & = 1.49 \text{Hz}
+				\end{split}
+			\end{equation}
+		\subsection{Q4}
+			Using a clock frequency of 450MHz again, getting a frequency of \~3KHz can be done by reversing \cref{eq:freq}. This is shown in \cref{eq:3k}
+			\begin{equation}
+				\label{eq:3k}
+				\begin{split}
+					3000 & = \frac{450\times 10^6}{2^{n}}\\
+					2^n  & = \frac{450\times 10^6}{3000}\\
+						 & = 150000\\
+					n    & = \log_{2}{150000}\\
+						 & = 17.19\\
+						 & \approx 17\\
+				\end{split}
+			\end{equation}
+			The result of \cref{eq:3k} gives a frequency of 3.4KHz.
+		\subsection{Q5}
+			It assigns the signal count\_out to the variable count\_int which is configured as an output to some on board LEDs turning on the ones dictated by what's stored in count\_int and now count\_out.
+		\subsection{Q6}
+			A test bench is used to provide a simulated environment for testing your code before it goes onto the FPGA. This is useful as it allows us to simulate timings, whether it is possible to load the code onto the FPGA physically. This is all easier in a test bench as you don't need special equipment to see what your hardware is doing, the built in simulations provide an accurate enough representation of the chip and are able to reproduce what you can expect on the hardware. Additionally, you don't need to have an FPGA on hand to run your code.
+
+
+
+	% \Urlmuskip=0mu plus 1mu\relax
+	% \bibliography{bibliography}
+	% \bibliographystyle{IEEEtran}
+
+	% \begin{appendices}           
+	% \end{appendices}
+\end{document}
