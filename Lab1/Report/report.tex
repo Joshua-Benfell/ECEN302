@@ -79,14 +79,14 @@
 		\subsection{Q1}
 			The name of the Xilinx chip we are using is the Artix 7 (Xilinx Part Number XC7A100T\-1CSG324C) on the Nexys4DDR board by Digilent. This chip has 324 pins.
 		\subsection{Q2}
-			This chip operates above 450MHz internally.
+			This chip has a clock speed of 100MHz.
 		\subsection{Q3}
-			If we assume that the our clock is running at 450MHz, as stated by the data sheet on the wiki, the frequency of bit 24 can be found using \cref{eq:freq}.
+			As the clock is running at 100MHz, the frequency of bit 24 can be found using \cref{eq:freq}.
 			\begin{equation}
 				\label{eq:freq}
 				\begin{split}
-					F & = \frac{450\times 10^6}{2^{24}}\\
-					  & = 26.8 \text{Hz}
+					F & = \frac{100\times 10^6}{2^{24}}\\
+					  & = 5.96 \text{Hz}
 				\end{split}
 			\end{equation}
 		\subsection{Q4}
@@ -94,15 +94,15 @@
 			\begin{equation}
 				\label{eq:3k}
 				\begin{split}
-					3000 & = \frac{450\times 10^6}{2^{n}}\\
-					2^n  & = \frac{450\times 10^6}{3000}\\
-						 & = 150000\\
-					n    & = \log_{2}{150000}\\
-						 & = 17.19\\
-						 & \approx 17\\
+					3000 & = \frac{100\times 10^6}{2^{n}}\\
+					2^n  & = \frac{100\times 10^6}{3000}\\
+						 & = 33333.33\\
+					n    & = \log_{2}{33333.33}\\
+						 & = 15.025\\
+						 & \approx 15\\
 				\end{split}
 			\end{equation}
-			The result of \cref{eq:3k} gives a frequency of 3.4KHz.
+			The result of \cref{eq:3k} gives a frequency of 3.052KHz.
 		\subsection{Q5}
 			It assigns the signal count\_out to the variable count\_int which is configured as an output to some on board LEDs turning on the ones dictated by what's stored in count\_int and now count\_out.
 		\subsection{Q6}
