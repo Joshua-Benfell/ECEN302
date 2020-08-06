@@ -1,0 +1,95 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[section]{placeins}
+\usepackage{fixltx2e}
+\usepackage[page]{appendix}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath}
+\usepackage{cleveref}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+\lstset{
+	language=VHDL,                % choose the language of the code
+	% language=C
+	numbers=left,                   % where to put the line-numbers
+	stepnumber=1,                   % the step between two line-numbers.        
+	numbersep=5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{backgroundColour},
+	commentstyle=\color{mGreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{mGray},
+	stringstyle=\color{mPurple},
+	basicstyle=\footnotesize,
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	tabsize=4,                      % sets default tabsize to 2 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+	title=\lstname,                 % show the filename of files included with \lstinputlisting;
+	inputpath=code,
+}
+
+\graphicspath{{./pictures/}}
+
+\title{ECEN302 Lab 2 - Various Hardware Designs of a Multiplexer}
+\author{Joshua Benfell - 300433229}
+
+\begin{document}
+	\maketitle
+	
+	\section{Objectives}
+		The primary objectives of this lab were to learn and use the different modelling types offered by the VHDL language. There are 3 different ways of modelling available in the language, these are: Dataflow, Structural and Behavioural Modelling. To illustrate the concepts further, the circuit being modelled will be the same for all types, that being a multiplexer. To further communicate the uses of each type, small extensions to a base multiplexer design will be made, to change it from a one bit mux to a two bit mux. It is important the different models are learnt and understood as they are the main foundation of circuit design on a FPGA.
+	\section{Methodology}
+		The first type of modelling that was implemented was the dataflow modelling. This was done with signal assignment using the `<=' operator in the parallel architecture block of VHDL. This functions by pushing the result of \textit{(y and s) or (x and (not s))} into the mux output signal every clock cycle. It is done so in parallel with other operations, however, there are no more than this one at this point. This was then uploaded to the FPGA to test functionality. When testing this physically, one of the switches was constantly on, which was not the intended behaviour. To verify the circuit design was correct, a test bench was created. Once simulated, this returned the results that the circuit design was correct. So a different FPGA board was used to test that it was just the board not functioning correctly. This turned out to be the case and the design now functioned correctly.
+		\par
+		\begin{figure}[!ht]
+			\centering
+			\includegraphics[width=0.8\columnwidth]{dataflow_modelling_delay.PNG}
+			\caption{Timing Diagram of simulated delayed mux}
+			\label{fig:delay}
+		\end{figure}
+		To extend this functionality and demonstrate the parallelism of dataflow modelling, two multiplexers were implemented in the same design. This was done by adding a copy of the line used for the single mux as well as changing the mux inputs and output to the \textit{STD\_LOGIC\_VECTOR} data type. In this each bit of the inputs and output were selected to make understanding simpler, however, this could be done by using the whole vector in the operation. By separating them, we can treat them as separate operations and in \cref{fig:delay}, it can be seen that the mux inputs are switching at the same time when told to. The next thing added to the mux was a transitional delay of 3ns, which can be seen in \cref{fig:delay} as the input changes at 10ns, but the output changes at 13ns.
+		\par
+		Structural modelling differs from dataflow modelling in that the model is built up from other pre-existing blocks, whether made or primitive. For this exercise the primitive blocks \textit{and2}, \textit{or2} and \textit{inv} are used as the and, or and not gates respectively. The main difficulty with this exercise was figuring out what these primitive gates were. Once that was done, they were registered in the model so that it had reference to what was to be used, then the ports were mapped to the respective signals. Because this was being built up from bare gates new variables/signals needed to be created for the intermediary stages so that the output of each gate could be stored. As this was a two bit mux, it could possibly be compressed and simplified by not doing each bit individually, but doing each input and output as it's vector. This form of modelling was much more tedious and code size intensive, which does not bode well to it offering benefits as an option of modelling. However, being able to abstract the design into design blocks will make the design simpler and easier to split up and implement as well as maintain.
+		\par
+		The final type of modelling that will be implemented is behavioural modelling. This form of modelling can be both parallel and sequential, it makes the use of processes which allows code to be written in a similar manner to other languages while also running sequentially. This was done as both a single bit and two bit mux, both of these are functionally the same, the main difference is that one uses \textit{STD\_LOGIC} and the other uses \textit{STD\_LOGIC\_VECTOR}. The logic for this was inverted to all the other muxes, this was found to be because the code that was  in the lab script regarding this section had the select bits in reverse order to all the previous descriptions, so when this was changed, it matched up with what was expected.
+		\par
+		Now that a 2 input mux module has been created, it can be used in other VHDL files to implement it's behaviour. To demonstrate this, a 3 input 2 bit mux was designed. I used one of the implementations of a 2 input 2 bit multiplexer done prior and followed structural modelling principles to implement this 3 bit mux. It is implemented such that the output of a first stage mux (so a intermediary variable is required) is set as the input to a second mux with a third input, the select bits can then be used to determine if the final output is the output of the first mux, or the third input. This was a tricky design to implement as finding a nice way to lay it out on the in line switches didn't allow good separation. 
+		\par
+		The final task implemented on the FPGA was a BCD to seven segment display. This was done using a lookup table and dataflow modelling, by utilising the \textit{with x select} statement. This statement was populated with all possible inputs and what output this lined up with. As the seven segment display was used before in a previous lab exercise, setting up the displaying was trivial. However, this exercise asked for only one number of the 8 to display number. This was trickier as it was not clear from the get go how the anodes worked. After testing, it was found that setting the AN pins high would turn off a display with the LSB being the right most display. After uploading it to the FPGA, you were able to count with the switches and display the appropriate decimal number on a seven segment display. To improve this, multiple digits need to be implemented so that numbers like 15 can be displayed. This requires setting the displays separately as writing to the CA pins sets all displays, however, this was beyond the scope of this exercise.
+
+	\section{Code}
+		\subsection{2.2.1 - Dataflow Modelling}
+			\lstinputlisting{dataflow_modelling.vhd}
+			\lstinputlisting{dataflow_modelling_tb.vhd}
+		\subsection{2.2.2 - Two Bit Dataflow Modelling}
+			\lstinputlisting{dataflow_modelling_two_bit.vhd}
+		\subsection{2.2.3 - Adding Net Delay}
+			\lstinputlisting{dataflow_modelling_delay.vhd}
+		\subsection{2.3.1 - Structural Modelling}
+			\lstinputlisting{structural_modelling.vhd}
+		\subsection{2.4.1 - Behavioural Modelling}
+			\lstinputlisting{behavioural_modelling.vhd}
+		\subsection{2.4.2 - Two Bit Behavioural Modelling}
+			\lstinputlisting{behavioural_modelling_two_bit.vhd}
+		\subsection{2.5.1 - 3 to 1 MUX}
+			\lstinputlisting{three_to_one_mux.vhd}
+		\subsection{2.5.2 - BCD to Seven Segment Display}
+			\lstinputlisting{bcdto7segment_dataflow.vhd}
+
+	% \Urlmuskip=0mu plus 1mu\relax
+	% \bibliography{bibliography}
+	% \bibliographystyle{IEEEtran}
+
+	% \begin{appendices}           
+	% \end{appendices}
+\end{document}
