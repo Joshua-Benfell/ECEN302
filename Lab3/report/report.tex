@@ -60,24 +60,72 @@
 		\subsection{Introduction}
 			In this lab we will be implementing models for various combinatorial logic circuits in VHDL. This will be done using the inbuilt procedures and functions. The functionality of each of the implemented models will be verified through the use of test benches. Finally a test bench will be used to generate a waveform. This will provide a deeper understanding of how each of the constructs work and the features that are provided with them.
 		\subsection{Procedures}
-			The first procedural model that was created was one that would add two 4 bit values into a sum nybble and a carry bit. To do this a procedure was created that took the two numbers as input and outputted a 5 bit number. Inside this procedure is a single line that adds the numbers together.
+			The first procedural model that was created was one that would add two 4 bit values into a sum nybble and a carry bit. To do this a procedure was created that took the two numbers as input and outputted a 5 bit number. Inside this procedure is a single line that adds the numbers together. From there, the carry bit was assigned to bit 5 of the summed 5 bit number and the sum was set to the first 4 bits, this was then outputted from the module. To call the procedure, it was done in a process, this makes the call sequentially, but allows us to run concurrent code in a sequential statement. Using the provided test bench shows that this code works successfully in \Cref{fig:311}. An improvement that could be made to this program is to call the procedure outside of a process as this is unnecessary.
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=0.9\columnwidth]{lab311.PNG}
+				\caption{Testbench results for add two values}
+				\label{fig:311}
+			\end{figure}
+			\par
+			A further exercise done with procedures was a even parity bit generator. The hardest part of this section of the lab was figuring out how to generate a parity bit. After writing it down on paper, it was found that the logical XOR operation would do the trick. By XORing the parity bit's current value with the current bit as we loop through the bits. By defining the parity bit as being the bit that ensures there's an even number of 1's in a series of bits, we can initialise the parity bit as 0, this was if the first bit is a 1, then the parity bit will also be a 1 to ensure there are 2 1's. We can see this behaviour in the testbench results, \Cref{fig:312}.
+
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=0.9\columnwidth]{lab312.PNG}
+				\caption{Testbench results for calc parity bit}
+				\label{fig:312}
+			\end{figure}
+			\par
 		\subsection{Functions}
-		
+			The next VHDL construct to be used is the function. The module being implemented first is another one that adds two numbers together. The overall functionality of the function is very similar to the procedure version where it adds the numbers into a 5 bit number, however, there was no requirement for a carry bit here, so the number was not required to be split up. The function does have the noticeable difference of the return keyword, this is because it's not possible to have the output be a signal, it has to be assigned to a variable and then that variable must be returned. This in turn is sequential and not concurrently happening. The functionality of the code can be seen in the testbench results obtained from using the provided test bench, in \Cref{fig:321}.
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=0.9\columnwidth]{lab321.PNG}
+				\caption{Testbench results for add two values}
+				\label{fig:321}
+			\end{figure}
+			\par
+			The next module to be implemented will count the number of 1's in a binary sequence. This had the same issue with the parity bit code of finding a clever way to do this. I couldn't think of anything so I went with looping through it and adding 1 every time a 1 was found in the sequence. The results of this implementation can be seen in the results from the provided testbench, \Cref{fig:322}.
+
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=0.9\columnwidth]{lab322.PNG}
+				\caption{Testbench results for calc ones}
+				\label{fig:322}
+			\end{figure}
 		\subsection{Testbench}
+			The final tool explored in this lab was the testbench. Our first task was to fix up the testbench for the RCA dataflow. This was done by first un-commenting all the commented out write lines. This didn't make the testbench work, and it turns out the strings needed to be explicitly cast to strings by surrounding it with \lstinline{string'()}. This was odd, but made it work, although it never seemed necessary as the strings were surrounded by double quotes, which typically denotes a string in languages like C++, and VHDL uses them to denote sequences of bits. The results and tcl console can be seen in the testbench results, \Cref{fig:331}
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=0.9\columnwidth]{lab331.PNG}
+				\caption{Testbench results for RCA\_dataflow\_tb}
+				\label{fig:331}
+			\end{figure}
+			\par
+			The final task to do was generate a waveform using a testbench, while initially confusing it was determined that the creation of a module was not necessary, just a testbench. To do this, the relevant variables were created and with the correct time intervals, set to their required states to produce the waveform. This was easiest done as a process as the wait for instruction would allow for accurate time intervals. The resulting waveform can be seen in \Cref{fig:322}. This was only done for 160 ns as that was what the example showed in the lab script, even though it asked for a 200 ns snapshot. So this better mirrors the script.
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=0.9\columnwidth]{lab332.PNG}
+				\caption{Testbench Waveform}
+				\label{fig:332}
+			\end{figure}
+		\subsection{Common Challenges}
+			A common issue that was regularly encountered throughout this lab was syntax errors. I don't remember exactly what issues came up, but I do know that all of them were solved by reviewing the previous labs, looking at the lab scripts example code and googling examples of the various constructs. Through the use of these tools, I was able to solve all of the syntax and compilation issues.
 
 		\subsection{Code}
 			\subsubsection{1-1 Procedures Add two Values}
 				\lstinputlisting{lab311.vhd}
-				\lstinputlisting{lab311_tb.vhd}
+				% \lstinputlisting{lab311_tb.vhd}
 			\subsubsection{1-2 Calc Even Parity}
 				\lstinputlisting{lab312.vhd}
-				\lstinputlisting{lab312_tb.vhd}
+				% \lstinputlisting{lab312_tb.vhd}
 			\subsubsection{2-1 Functions Add Two Values}
 				\lstinputlisting{lab321.vhd}
-				\lstinputlisting{lab321_tb.vhd}
+				% \lstinputlisting{lab321_tb.vhd}
 			\subsubsection{2-2 Calc Ones}
 				\lstinputlisting{lab322.vhd}
-				\lstinputlisting{lab322_tb.vhd}
+				% \lstinputlisting{lab322_tb.vhd}
 			\subsubsection{3-1 RCA Test Bench}
 				\lstinputlisting{lab331_tb.vhd}
 			\subsubsection{3-2 Waveform Generator Testbench}
