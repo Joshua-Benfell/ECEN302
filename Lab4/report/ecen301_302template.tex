@@ -1,0 +1,112 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[section]{placeins}
+\usepackage{fixltx2e}
+\usepackage[page]{appendix}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=blue,
+	citecolor=blue,
+	urlcolor=magenta,
+}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+\lstset{
+	language=VHDL,                % choose the language of the code
+	% language=C
+	numbers=left,                   % where to put the line-numbers
+	stepnumber=1,                   % the step between two line-numbers.        
+	numbersep=5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{backgroundColour},
+	commentstyle=\color{mGreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{mGray},
+	stringstyle=\color{mPurple},
+	basicstyle=\footnotesize,
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	tabsize=4,                      % sets default tabsize to 2 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+	title=\lstname,                 % show the filename of files included with \lstinputlisting;
+	inputpath=code,
+}
+
+\graphicspath{{./pictures/}}
+
+\title{ECEN302 Lab 4 - Finite State Machines}
+\author{Joshua Benfell - 300433229}
+
+\begin{document}
+	\maketitle
+	
+	\section{Objectives}
+		The primary objectives of this lab was to implement and understand different types of finite state machines. The machines that are being implemented here are the Mealy FSM and the Moore FSM. From doing this we will gain an understanding of the pros and cons of each type and where to use them.
+	\section{Methodology}
+		\subsection{Introduction}
+			In this lab a mealy and moore state machine will be implemented. The mealy state machine will be implemented as a mod three counter. The moore state machine will be designed such a particular 2 bit input will result in a predefined output. This will be done using the VHDL language.
+		\subsection{Mealy FSM}
+			A mod three counter was implemented as a mealy state machine. How this works is by inputting individual bits one at a time, if the current number of 1s seen is a multiple of 3, it will output high. The bit value is passed into the state machine on the rising edge of the clock cycle.
+			\par
+			This was very difficult to think about as a mealy state machine due to there being so few states. A mealy state machine defines it's output based on the current state and the current input, however, there weren't enough states to make this an easy mealy state machine to think about.
+			\par
+			The diagram for this FSM can be seen in \Cref{fig:mealyDiag}. The way this functions is that any input on states 1 and 2 output a 0. On state 1, if the input is a 0, the output is zero and if the input is a 1 the output is 1. This has the bug in that, due to the input not being passed through until the clock is done, the initial change to 1 causes an output of 1. 
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=\columnwidth]{Mealy_FSM.jpg}
+				\caption{Mod 3 Mealy State Machine Diagram}
+				\label{fig:mealyDiag}
+			\end{figure}
+			\par
+			To verify the functionality a test bench was created to toggle the reset and input bits. The results of this testbench can be seen in \Cref{fig:mealy}. From this we can see that aside from the aforementioned bug, the FSM functions as intended. 0 has been considered not a multiple of 3 as the example testbench results provided had the issue of it not making reset output a 0. So because of the inaccuracies, I opted to keep the reset as a 0 output, and ignore no input as a multiple of 3. The other discrepancy in the lab script is that the count of 6, if the input is 0, the output is 0. This is despite a count of 6 being a multiple of 3. So, this has been followed in this implementation, hence state 0 causing a 0 output on a 0 input.
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=\columnwidth]{mealy.png}
+				\caption{Mod 3 Mealy State Machine Testbench Output}
+				\label{fig:mealy}
+			\end{figure}
+		\subsection{Moore FSM}
+			The next type of FSM implemented is the moore state machine. On the input of 01 then 00, the output will become 0. On the input of 11 then 00, the output will become 1. On the input of 10 then 00, the output will toggle from it's current state. This state machine was implemented with 9 states, 1 for each case including when it was coming from a specific output route. The states are articulated in \Cref{fig:mooreDiag} and it is laid out as TargetState : Input. This state machine is better implemented as a mealy state machine with the output fed back in as an input as it has events like toggling, which caused the biggest issue when thinking about how to implement this. Also, due to the fact that the input was a sequence of a pair and then 00, it caused issues in that the sequence could change before a 00, which meant that each state needed to be able to go between itself and a different sequence, which became even more complicated due to the toggle state. So to combat this, there is a route for if the output is 0 and if the output is 1. This solved all of the issues, but is much more complicated than if this were a mealy state machine. It is definitely possible to simplify this system, I couldn't think of a simpler way to do it though.
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=\columnwidth]{Moore_FSM.jpg}
+				\caption{Moore State Machine Diagram}
+				\label{fig:mooreDiag}
+			\end{figure}
+			\par
+			A testbench was created that provided the same input sequence as that provided in the lab script. This resulted in a similar simulation output to tht provided in the lab script, shown in \Cref{fig:mooreDiag}. The major difference between this and the script image is the lack of a reset bit. This bit was not included because it wasn't really mentioned as an input into the system in the lab script as the primary input was the two bit sequence. So it was overlooked, and before I had noticed it was near the end of the session and I had already spent so long trying to get the state machines working in the first place.
+			\begin{figure}[!ht]
+				\centering
+				\includegraphics[width=\columnwidth]{moore.png}
+				\caption{Moore State Machine Testbench Output}
+				\label{fig:moore}
+			\end{figure}
+		\subsection{Code}
+			\subsubsection{Mealy State Machine}
+				\lstinputlisting{Mealy_FSM_Mod_Three.vhd}
+				\lstinputlisting{Mealy_tb.vhd}
+
+			\subsubsection{Moore State Machine}
+				\lstinputlisting{MOORE_FSM.vhd}
+				\lstinputlisting{MOORE_TB.vhd}
+	% \Urlmuskip=0mu plus 1mu\relax
+	% \bibliography{bibliography}
+	% \bibliographystyle{IEEEtran}
+
+	% \begin{appendices}           
+	% \end{appendices}
+\end{document}
