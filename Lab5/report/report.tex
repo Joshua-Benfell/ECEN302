@@ -1,0 +1,87 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[section]{placeins}
+\usepackage{fixltx2e}
+\usepackage[page]{appendix}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=blue,
+	citecolor=blue,
+	urlcolor=magenta,
+}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+\lstset{
+	language=VHDL,                % choose the language of the code
+	% language=C
+	numbers=left,                   % where to put the line-numbers
+	stepnumber=1,                   % the step between two line-numbers.        
+	numbersep=5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{backgroundColour},
+	commentstyle=\color{mGreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{mGray},
+	stringstyle=\color{mPurple},
+	basicstyle=\footnotesize,
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	tabsize=4,                      % sets default tabsize to 2 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+	title=\lstname,                 % show the filename of files included with \lstinputlisting;
+	inputpath=code,
+}
+
+\graphicspath{{./pictures/}}
+
+\title{ECEN302 Lab 5 - IP Catalog}
+\author{Joshua Benfell - 300433229}
+
+\begin{document}
+	\maketitle
+	
+	\section{Introduction}
+		The main objective of this lab was to become familiar with the IP catalog and implement a counter utilising a pre-made component. Using a pre-defined seven segment display decoder in conjunction with a clock defined by the vivado clocking wizard from the IP catalog, a 2 digit BCD counter was implemented on an FPGA. Doing this with the IP catalog demonstrates how we as FPGA designers don't have to reinvent the wheel and can speed up development time. 
+	
+	\section{1 Hz Clock}
+		To make the 1Hz clock the IP Catalog was first used to select a pre-made step down clock. This clock was configured such that it took a 100MHz clock as an input and outputted a 5MHz clock. This then had to be stepped down to a 1Hz clock which was done with a 2.5 million counter to provide 1 second at a 50\% duty cycle. 
+		\par
+		The ports enabled on the auto-generated clock module were the clk\_in and clk\_out pins, and the reset and locked pins. The reset pin was used to restart the 5MHz cycle and would turn off the locked led which proves the locked ports function of identifying if the clock is running. 
+		\par
+		Additional functionality that was added to this is an enable switch. I had issues implementing this as I initially had the enable pin wrapping around the clk functionality (the conversion to a 1Hz clock.). This turned out to cause clocking issues as it was tying the clocks function to an asynchronous input. The solution to this was to make the clock the main wrapper in the process and inside that clocked function, if the enable bit was set, then have the clock out bit set to the one hz clock.
+
+
+	\section{Two Digit Counter}
+		The next segment of code added was a two digit counter. This was also done with the IP catalog as this greatly reduced the time to develop this program. This was initially done with each counter having the pins CLK, SCLR, THRESH0 and Q. CLK was the input 1Hz clock, SCLR was the synchronous clear, which at this point I couldn't get working as it required the clock to clear and the clock was being halted on the reset. The THRESH0 pin was configured to output high when the counter reach 9. By tying this as the clock input to the second counter, it caused the count to go 08, 19, 10, which is clearly wrong. This was solved by adding the concurrent line `flipOver<= not  threshold ;' as the second counters clock is forced to wait a cycle of the 1 hz clock.
+		\par
+		As this didn't work with the reset due to the synchronous clear requiring a clock and not receiving one, I attempted to implement it without IP blocks and instead within the processes. This worked as a normal counter, but I couldn't get the reset function working and the counter would go 99, A0, 00, which is also not correct, so I revisited the IP Block version.
+		\par
+		Retrying with IP blocks, I added the Clock enable pin and set up the output of counter 1s threshold bit to the CE pin. This was set up so that the SCLR function would take priority over the CE function. From here, both counters were tied to the 1Hz clock and the compromise of not resetting the clock had to be made as I prioritised resetting the counter and could not figure out how to do both. This worked as a functional counter with the reset ability and didn't count weird. However, not everything was able to be reset. 
+		\par
+		It was also found that the keyword open could be used to indicate to vivado that no connection was on a port which saved me creating a dummy signal for the second counters threshold bit. I was also able to remove the flipover line as this was no longer necesary due to the clock enable pin allowing the next clock cycle.
+
+	\section{Code}
+		\lstinputlisting{one_second_clock_behaviour.vhd}
+
+
+	% \Urlmuskip=0mu plus 1mu\relax
+	% \bibliography{bibliography}
+	% \bibliographystyle{IEEEtran}
+
+	% \begin{appendices}           
+	% \end{appendices}
+\end{document}

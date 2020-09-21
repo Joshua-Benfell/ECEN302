@@ -1,0 +1,67 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[section]{placeins}
+\usepackage{fixltx2e}
+\usepackage[page]{appendix}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=blue,
+	citecolor=blue,
+	urlcolor=magenta,
+}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+\lstset{
+	language=VHDL,                % choose the language of the code
+	% language=C
+	numbers=left,                   % where to put the line-numbers
+	stepnumber=1,                   % the step between two line-numbers.        
+	numbersep=5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{backgroundColour},
+	commentstyle=\color{mGreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{mGray},
+	stringstyle=\color{mPurple},
+	basicstyle=\footnotesize,
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	tabsize=4,                      % sets default tabsize to 2 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+	title=\lstname,                 % show the filename of files included with \lstinputlisting;
+	inputpath=code,
+}
+
+\graphicspath{{./pictures/}}
+
+\title{ECEN302 Lab 7 - TCL scripts and Packaging IP}
+\author{Joshua Benfell - 300433229}
+
+\begin{document}
+	\maketitle
+	
+	\section{Introduction}
+		The primary objective of this lab was to wrap up a module as an IP Block. This was done so that an understanding was gained of how to compartmentalise and modularise the program written for an FPGA was acquired for the purpose of speeding up development time in future endeavors. 
+	\section{Methodology}
+		The module being packed up in this lab is a PWM sine wave generator. This module takes the first nine switches as inputs to provide a binary weighting to a unity sine wave. Flicking the switches on would increase the time it takes for a point on the output sine wave to be generated; this in turn lowers the frequency of the output sine wave. The AUD\_SD port of the module was used to turn off the low pass filter which stops the audio signal from outputting. The AUD\_PWM is the output port for the generated tone. 
+	% \Urlmuskip=0mu plus 1mu\relax
+	% \bibliography{bibliography}
+	% \bibliographystyle{IEEEtran}
+
+	% \begin{appendices}           
+	% \end{appendices}
+\end{document}

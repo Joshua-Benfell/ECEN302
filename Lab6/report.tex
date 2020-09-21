@@ -1,0 +1,71 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[section]{placeins}
+\usepackage{fixltx2e}
+\usepackage[page]{appendix}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=blue,
+	citecolor=blue,
+	urlcolor=magenta,
+}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+\lstset{
+	language=VHDL,                % choose the language of the code
+	% language=C
+	numbers=left,                   % where to put the line-numbers
+	stepnumber=1,                   % the step between two line-numbers.        
+	numbersep=5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{backgroundColour},
+	commentstyle=\color{mGreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{mGray},
+	stringstyle=\color{mPurple},
+	basicstyle=\footnotesize,
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	tabsize=4,                      % sets default tabsize to 2 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+	title=\lstname,                 % show the filename of files included with \lstinputlisting;
+	inputpath=code
+}
+
+\graphicspath{{./pictures/}}
+
+\title{ECEN302 Lab 6 - Microblaze Softcore Processor}
+\author{Joshua Benfell - 300433229}
+
+\begin{document}
+	\maketitle
+	
+	\section{Introduction}
+		In this lab the primary objective was to implement the microblaze microcontroller with a FPGA. However, instead of manually programming this, the IP Catalog was utilised to speed up the development time. From this it will be possible to add a C programmable softcore microprocessor and ``Intelligence''to FPGA designs as well as an understanding of how to implement such a function.
+	\section{Methodology}
+		To implement the microprocessor, the IP catalog was used to import it into a Vivado block diagram editor. This block diagram editor was used because it is drag and drop, making the development time and effort much less. Once it was added to the block diagram, because the board was predefined in the project creation as the Nexys4 DDR, it was possible to see all the available interfaces that the microprocessor could interact with. This provided the ability to drag in connections such as the FPGAs Clock, it's 16 input switches and output LEDs and the UART interface. Additionally, it is possible to configure the FPGA to have a certain size of memory which Vivado is able to automatically include, as well as any intermediate blocks for interfaces such as UART. An additional feature that makes development easy is the ability to automatically run connections due to the pins on the blocks being defined correctly. Once this was done, the block design was a fully functioning microcontroller that was clock with a UART interface, I/O and memory and this was done without writing any code. 
+		\par
+		The next step was to wrap the block diagram up as VHDL code and from there the bitstream could be generated just as if it were any other FPGA project. From here, the microcontroller could be programmed which was done in VITIS. The important thing to include for programming this was the XSA wrapper that Vivado can auto generate, this tells VITIS how to program the softcore microcontroller. This was uploaded using the system debugger built into VITIS which allows us full debug capabilities of the microcontroller, and step through it step by step to fully understand how the program works. Being a fully integrated IDE as well, we are able to easily navigate through all the files that make up a project. 
+
+
+	% \Urlmuskip=0mu plus 1mu\relax
+	% \bibliography{bibliography}
+	% \bibliographystyle{IEEEtran}
+
+	% \begin{appendices}           
+	% \end{appendices}
+\end{document}
