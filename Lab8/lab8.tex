@@ -1,0 +1,89 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[section]{placeins}
+\usepackage{fixltx2e}
+\usepackage[page]{appendix}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=blue,
+	citecolor=blue,
+	urlcolor=magenta,
+}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+\lstset{
+	% language=VHDL,                % choose the language of the code
+	language=C,
+	numbers=left,                   % where to put the line-numbers
+	stepnumber=1,                   % the step between two line-numbers.        
+	numbersep=5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{backgroundColour},
+	commentstyle=\color{mGreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{mGray},
+	stringstyle=\color{mPurple},
+	basicstyle=\footnotesize,
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	tabsize=4,                      % sets default tabsize to 2 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+	title=\lstname,                 % show the filename of files included with \lstinputlisting;
+	inputpath=code,
+}
+
+\graphicspath{{./pictures/}}
+
+\title{ECEN302 Lab 8 - Sound and light show}
+\author{Joshua Benfell - 300433229}
+
+\begin{document}
+	\maketitle
+	
+	\section{Introduction}
+		This lab builds on the previous labs by using the created IP block as a peripheral to the Microblaze microcontroller. The microcontroller will be used to send the digital signal, that was previously done as analog switches on the fpga, to the audio IP block so that it can play a sequence of sounds. This will be done by programming the microcontroller with the C programming language.
+	\section{Methodology}
+		To begin this project the microcontroller setup in lab 6 was opened and the audio block created in lab 7 was included along with ports and an axi\_gpio bus. This will setup all the peripherals needed for the microcontroller to produce sound. In addition to these peripherals there is another axi\_gpio bus that is used to communicate with the boards LEDs.
+		\par
+		This was uploaded to the FPGA and the Vitis editor opened with the imported xsa file. The first program put onto the microcontroller was a test one that turned on every light and every switch into the audio block. This proved that what was made was functioning. How this works is by first initialising a gpio device, in this ase the axi buses. The direction is then set to output (0x0) on the selected channel, the lights had 2 channels as the switches were also connected to this bus, but the audio had one. All bits in the channel are then set to a low output so that nothing shows. To write a value the XGpio\_DiscreteWrite function is called passing through a 32 bit number of which only the 9 LSBs are used as they are all the device will accept. 
+
+		\par
+			\begin{equation}
+				\label{eq:freq}
+				\text{value} = \frac{\text{F\_CLK}}{1024 \times f}
+			\end{equation}
+			\begin{equation}
+				\label{eq:len}
+				\text{length} = \frac{\text{noteDur} \times 3000000}{\text{bpm}}
+			\end{equation}
+		Now that the functionality has been verified, it was time to produce some proper music. To do this the code was set up so that we could pass through a frequency and have it converted to the appropriate writable value. This was done with \cref{eq:freq}, where the value 1024 comes from the frequency of the PWM signal. This was then played for \cref{eq:len} duration where teh 3000000 was found through trial and error and it was something that sounded alright. From there it was found that a gap between notes needed to exist, so no sound was played for 800000 clock cycles as without this, there was nothing to be heard but the last note.
+		\par
+		Now that this was all setup, a song was created in the form of a 2D array with notes and the duration to play them. This was then looped through and each tone was played in sequence. This data is from a github repo that I made with Sam Griffen in Year 13 at high school.
+	\section{Code}
+		\subsection{Song Data}
+			\lstinputlisting{song.h}
+		\subsection{Music Player}
+			\lstinputlisting{testperiph.c}
+
+
+	% \Urlmuskip=0mu plus 1mu\relax
+	% \bibliography{bibliography}
+	% \bibliographystyle{IEEEtran}
+
+	% \begin{appendices}           
+	% \end{appendices}
+\end{document}
