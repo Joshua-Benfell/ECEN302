@@ -70,7 +70,7 @@
 				\label{eq:len}
 				\text{length} = \frac{\text{noteDur} \times 3000000}{\text{bpm}}
 			\end{equation}
-		Now that the functionality has been verified, it was time to produce some proper music. To do this the code was set up so that we could pass through a frequency and have it converted to the appropriate writable value. This was done with \cref{eq:freq}, where the value 1024 comes from the frequency of the PWM signal. This was then played for \cref{eq:len} duration where teh 3000000 was found through trial and error and it was something that sounded alright. From there it was found that a gap between notes needed to exist, so no sound was played for 800000 clock cycles as without this, there was nothing to be heard but the last note.
+		Now that the functionality has been verified, it was time to produce some proper music. To do this the code was set up so that we could pass through a frequency and have it converted to the appropriate writable value. This was done with \cref{eq:freq}, where the value 1024 is the number of sine wave samples stored on the FPGA. This was then played for \cref{eq:len} duration where teh 3000000 was found through trial and error and it was something that sounded alright. From there it was found that a gap between notes needed to exist, so no sound was played for 800000 clock cycles as without this, there was nothing to be heard but the last note.
 		\par
 		Now that this was all setup, a song was created in the form of a 2D array with notes and the duration to play them. This was then looped through and each tone was played in sequence. This data is from a github repo that I made with Sam Griffen in Year 13 at high school.
 	\section{Code}
